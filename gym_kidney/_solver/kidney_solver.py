@@ -25,7 +25,7 @@ def solve_kep(cfg, formulation, use_relabelled=True):
         "cf":   ("Cycle formulation",
                   kidney_ip.optimise_ccf)
     }
-    
+
     if formulation in formulations:
         formulation_name, formulation_fun = formulations[formulation]
         if use_relabelled:
@@ -68,7 +68,7 @@ def start():
     parser.add_argument("--relax", "-x", required=False,
             action='store_true',
             help="Solve the LP relaxation.")
-            
+
     args = parser.parse_args()
     args.formulation = args.formulation.lower()
 
@@ -83,7 +83,7 @@ def start():
         altruists = kidney_ndds.read_ndds(ndd_lines, d)
     else:
         altruists = []
-        
+
     start_time = time.time()
     cfg = kidney_ip.OptConfig(d, altruists, args.cycle_cap, args.chain_cap, args.verbose,
                               args.timelimit, args.edge_success_prob, args.eef_alt_constraints,

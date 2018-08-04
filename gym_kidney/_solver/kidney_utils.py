@@ -28,7 +28,7 @@ def check_validity(opt_result, digraph, ndds, max_cycle, max_chain):
             if digraph.adj_mat[cycle[i-1].id][cycle[i].id] is None:
                 raise KidneyOptimException("Edge from vertex {} to vertex {} is used but does not exist".format(
                         cycle[i-1].id, cycle[i].id))
-                
+
     # no vertex or NDD is used twice
     ndd_used = [False] * len(ndds)
     vtx_used = [False] * len(digraph.vs)
@@ -40,7 +40,7 @@ def check_validity(opt_result, digraph, ndds, max_cycle, max_chain):
             if vtx_used[vtx_index]:
                 raise KidneyOptimException("Vertex {} used more than once".format(vtx_index))
             vtx_used[vtx_index] = True
-            
+
     for cycle in opt_result.cycles:
         for vtx in cycle:
             if vtx_used[vtx.id]:
@@ -65,7 +65,7 @@ def get_dist_from_nearest_ndd(digraph, ndds):
     shortest path from an NDD to V, or 999999999 if no path from an NDD
     to V exists.
     """
-    
+
     # Get a set of donor-patient pairs who are the target of an edge from an NDD
     ndd_targets = set()
     for ndd in ndds:
@@ -94,7 +94,7 @@ def find_selected_path(v_id, next_vv):
         v_id = next_vv[v_id]
         path.append(v_id)
     return path
-        
+
 def find_selected_cycle(v_id, next_vv):
     cycle = [v_id]
     while v_id in next_vv:
@@ -104,14 +104,14 @@ def find_selected_cycle(v_id, next_vv):
         else:
             cycle.append(v_id)
     return None
-        
+
 def get_optimal_chains(digraph, ndds, edge_success_prob=1):
     # Chain edges
     chain_next_vv = {e.src.id: e.tgt.id
                         for e in digraph.es
                         for var in e.grb_vars
                         if var.x > 0.1}
-        
+
     optimal_chains = []
     for i, ndd in enumerate(ndds):
         for e in ndd.edges:
@@ -123,7 +123,7 @@ def get_optimal_chains(digraph, ndds, edge_success_prob=1):
                 for j in range(len(vtx_indices) - 1):
                     score += digraph.adj_mat[vtx_indices[j]][vtx_indices[j+1]].score * edge_success_prob**(j+2)
                 optimal_chains.append(kidney_ndds.Chain(i, vtx_indices, score))
-    
+
     return optimal_chains
 
 def selected_edges_to_cycles(digraph, cycle_start_vv, cycle_next_vv):

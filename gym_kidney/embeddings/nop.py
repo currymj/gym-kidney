@@ -9,7 +9,7 @@ import networkx as nx
 #
 class NopEmbedding(embeddings.Embedding):
 
-	observation_space = spaces.Box(0, 0, (0,))
+    observation_space = spaces.Box(0, 0, (0,))
 
-	def embed(self, G, rng):
-		return np.array([], dtype = "f")
+    def embed(self, G, rng):
+        return np.array([], dtype = "f")
