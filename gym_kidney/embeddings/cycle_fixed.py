@@ -13,27 +13,27 @@ import networkx as nx
 #
 class CycleFixedEmbedding(embeddings.Embedding):
 
-	observation_space = spaces.Box(0, np.inf, (1,))
+    observation_space = spaces.Box(0, np.inf, (1,))
 
-	def __init__(self, sample_size, cycle_length):
-		self.sample_size = sample_size
-		self.cycle_length = cycle_length
+    def __init__(self, sample_size, cycle_length):
+        self.sample_size = sample_size
+        self.cycle_length = cycle_length
 
-	def embed(self, G, rng):
-		if G.order() < self.cycle_length:
-			return np.array([0.0], dtype = "f")
+    def embed(self, G, rng):
+        if G.order() < self.cycle_length:
+            return np.array([0.0], dtype = "f")
 
-		succ = 0
-		max_cycle = sp.binom(G.order(), self.cycle_length)
+        succ = 0
+        max_cycle = sp.binom(G.order(), self.cycle_length)
 
-		for _ in range(self.sample_size):
-			us = rng.choice(G.nodes(), self.cycle_length)
-			H = G.subgraph(us.tolist())
+        for _ in range(self.sample_size):
+            us = rng.choice(G.nodes(), self.cycle_length)
+            H = G.subgraph(us.tolist())
 
-			for c in nx.simple_cycles(H):
-				if len(c) == self.cycle_length:
-					succ += 1
-					break
+            for c in nx.simple_cycles(H):
+                if len(c) == self.cycle_length:
+                    succ += 1
+                    break
 
-		val = [max_cycle * (succ / self.sample_size)]
-		return np.array(val, dtype = "f")
+        val = [max_cycle * (succ / self.sample_size)]
+        return np.array(val, dtype = "f")

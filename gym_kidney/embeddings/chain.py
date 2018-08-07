@@ -11,19 +11,19 @@ import networkx as nx
 #
 class ChainEmbedding(embeddings.Embedding):
 
-	observation_space = spaces.Box(0, np.inf, (1,))
+    observation_space = spaces.Box(0, np.inf, (1,))
 
-	def __init__(self, chain_length):
-		self.chain_length = chain_length
+    def __init__(self, chain_length):
+        self.chain_length = chain_length
 
-	def embed(self, G, rng):
-		len = 0
+    def embed(self, G, rng):
+        len = 0
 
-		for u in G.nodes_iter():
-			if G.node[u]["ndd"]:
-				len += self._longest_path(G, u)
+        for u in G.nodes_iter():
+            if G.node[u]["ndd"]:
+                len += self._longest_path(G, u)
 
-		return np.array([len], dtype = "f")
+        return np.array([len], dtype = "f")
 
-	def _longest_path(self, G, u):
-		return len(nx.dag_longest_path(nx.bfs_tree(G, u)))
+    def _longest_path(self, G, u):
+        return len(nx.dag_longest_path(nx.bfs_tree(G, u)))

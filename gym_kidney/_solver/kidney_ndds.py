@@ -70,7 +70,7 @@ def read_ndds(lines, digraph):
 
 class Chain(object):
     """A chain initiated by an NDD.
-    
+
     Data members:
         ndd_index: The index of the NDD
         vtx_indices: The indices of the vertices in the chain, in order
@@ -109,7 +109,7 @@ class Chain(object):
                 elif i > j:
                     return 1
         return 0
-            
+
 def find_chains(digraph, ndds, max_chain, edge_success_prob=1):
     """Generate all chains with up to max_chain edges."""
 

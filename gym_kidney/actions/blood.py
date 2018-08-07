@@ -3,11 +3,11 @@ from gym_kidney import actions
 from gym_kidney import _solver
 
 BLOODS = {
-	"A": 0,
-	"B": 1,
-	"AB": 2,
-	"O": 3,
-	"-": 4
+        "A": 0,
+        "B": 1,
+        "AB": 2,
+        "O": 3,
+        "-": 4
 }
 
 #
@@ -21,59 +21,59 @@ BLOODS = {
 #
 class BloodAction(actions.Action):
 
-	def __init__(self, cycle_cap, chain_cap, min, max, w_fun):
-		self.cycle_cap = cycle_cap
-		self.chain_cap = chain_cap
-		self.min = min
-		self.max = max
-		self.w_fun = w_fun
-		self.action_space = spaces.Box(min, max, (len(BLOODS)**2,))
+    def __init__(self, cycle_cap, chain_cap, min, max, w_fun):
+        self.cycle_cap = cycle_cap
+        self.chain_cap = chain_cap
+        self.min = min
+        self.max = max
+        self.w_fun = w_fun
+        self.action_space = spaces.Box(min, max, (len(BLOODS)**2,))
 
-		self.params = {
-			"cycle_cap": cycle_cap,
-			"chain_cap": chain_cap,
-			"min": min,
-			"max": max
-		}
+        self.params = {
+                "cycle_cap": cycle_cap,
+                "chain_cap": chain_cap,
+                "min": min,
+                "max": max
+        }
 
-		self.stats = {
-			"cycle_reward": 0,
-			"chain_reward": 0
-		}
+        self.stats = {
+                "cycle_reward": 0,
+                "chain_reward": 0
+        }
 
-		for blood in BLOODS:
-			self.stats["%s_patient_matched" % blood] = 0
-			self.stats["%s_donor_matched" % blood] = 0
+        for blood in BLOODS:
+            self.stats["%s_patient_matched" % blood] = 0
+            self.stats["%s_donor_matched" % blood] = 0
 
-	def do_action(self, G, action):
-		dd, ndd = self._nx_to_ks(G)
-		cfg = _solver.kidney_ip.OptConfig(
-			dd,
-			ndd,
-			self.cycle_cap,
-			self.chain_cap)
-		soln = _solver.solve_kep(cfg, "picef")
-		M = (soln.cycles, soln.chains)
-		G = self._reweight(G, action)
-		G = self._process_matches(G, M)
+    def do_action(self, G, action):
+        dd, ndd = self._nx_to_ks(G)
+        cfg = _solver.kidney_ip.OptConfig(
+                dd,
+                ndd,
+                self.cycle_cap,
+                self.chain_cap)
+        soln = _solver.solve_kep(cfg, "picef")
+        M = (soln.cycles, soln.chains)
+        G = self._reweight(G, action)
+        G = self._process_matches(G, M)
 
-		rew_cycles = sum(map(lambda x: len(x), soln.cycles))
-		rew_chains = sum(map(lambda x: len(x.vtx_indices), soln.chains))
-		reward = rew_cycles + rew_chains
+        rew_cycles = sum(map(lambda x: len(x), soln.cycles))
+        rew_chains = sum(map(lambda x: len(x.vtx_indices), soln.chains))
+        reward = rew_cycles + rew_chains
 
-		self.stats["cycle_reward"] += rew_cycles
-		self.stats["chain_reward"] += rew_chains
+        self.stats["cycle_reward"] += rew_cycles
+        self.stats["chain_reward"] += rew_chains
 
-		return (G, reward)
+        return (G, reward)
 
-	def _reweight(self, G, action):
-		for u, v, d in G.edges(data = True):
-			o1 = self._vertex_weight(G, u, action)
-			o2 = self._vertex_weight(G, v, action)
-			d["weight"] = self.w_fun(o1, o2)
-			#d["weight"] = 1 - 0.5*(o1+o2)
-		return G 
+    def _reweight(self, G, action):
+        for u, v, d in G.edges(data = True):
+            o1 = self._vertex_weight(G, u, action)
+            o2 = self._vertex_weight(G, v, action)
+            d["weight"] = self.w_fun(o1, o2)
+            #d["weight"] = 1 - 0.5*(o1+o2)
+        return G 
 
-	def _vertex_weight(self, G, u, action):
-		bd, bp = G.node[u]["bd"], G.node[u]["bp"]
-		return action[BLOODS[bd]*len(BLOODS) + BLOODS[bp]]
+    def _vertex_weight(self, G, u, action):
+        bd, bp = G.node[u]["bd"], G.node[u]["bp"]
+        return action[BLOODS[bd]*len(BLOODS) + BLOODS[bp]]

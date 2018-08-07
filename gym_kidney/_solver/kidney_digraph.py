@@ -83,7 +83,7 @@ class Digraph:
         self.es.append(e)
         source.edges.append(e)
         self.adj_mat[source.id][tgt.id] = e
-    
+
     def find_cycles(self, max_length):
         """Find cycles of length up to max_length in the digraph.
 
@@ -91,7 +91,7 @@ class Digraph:
             a list of cycles. Each cycle is represented as a list of
             vertices, with the first vertex _not_ repeated at the end.
         """
-        
+
         return [cycle for cycle in self.generate_cycles(max_length)]
 
     def generate_cycles(self, max_length):
@@ -132,7 +132,7 @@ class Digraph:
             for c in cycle([v]):
                 yield c
             vtx_used[v.id] = False
-    
+
     def get_shortest_path_from_low_vtx(self, low_vtx, max_path):
         """ Returns an array of path lengths. For each v > low_vtx, if the shortest
             path from low_vtx to v is shorter than max_path, then element v of the array
@@ -150,7 +150,7 @@ class Digraph:
             for i in range(low_vtx, len(self.vs)):
                 if self.adj_mat[i][v.id]:
                     yield self.vs[i]
-            
+
         return self.calculate_shortest_path_lengths(self.vs[low_vtx], max_path,
                     adj_list_accessor=adj_list_accessor)
 
@@ -191,7 +191,7 @@ class Digraph:
         """Returns true if and only if an edge exists from Vertex v1 to Vertex v2."""
 
         return self.adj_mat[v1.id][v2.id] is not None
-                    
+
     def induced_subgraph(self, vertices):
         """Returns the subgraph indiced by a given list of vertices."""
 
@@ -207,7 +207,7 @@ class Digraph:
 
     def __str__(self):
         return "\n".join([str(v) for v in self.vs])
-        
+
 def read_digraph(lines):
     """Reads a digraph from an array of strings in the input format."""
 
@@ -226,7 +226,7 @@ def read_digraph(lines):
         if digraph.edge_exists(digraph.vs[src_id], digraph.vs[tgt_id]):
             raise KidneyReadException("Duplicate edge from {} to {}".format(src_id, tgt_id))
         score = float(tokens[2])
-            
+
         digraph.add_edge(score, digraph.vs[src_id], digraph.vs[tgt_id])
 
     if lines[edge_count+1].split()[0] != "-1" or len(lines) < edge_count+2:

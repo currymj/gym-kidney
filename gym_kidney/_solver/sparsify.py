@@ -28,7 +28,7 @@ if __name__=="__main__":
             "Sparsify a kidney-exchange instance, by keeping each edge with probability p.")
     parser.add_argument("p", type=float,
             help="the probability with which to keep each edge")
-            
+
     args = parser.parse_args()
 
     if not 0 < args.p < 1:

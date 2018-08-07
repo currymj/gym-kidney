@@ -1,7 +1,7 @@
 import gym
 import gym_kidney
 from gym_kidney import actions, embeddings, \
-	models, loggers, wrappers
+        models, loggers, wrappers
 
 # LOCAL CONSTS
 EPISODES = 100
@@ -34,17 +34,17 @@ LOGGING = loggers.CsvLogger(PATH, EXP, CUSTOM)
 
 # MAIN
 def main():
-	env = gym.make("kidney-v0")
-	env = wrappers.ConfigWrapper(env, ACTION, EMBEDDING, MODEL, LOGGING)
-	for i in range(EPISODES):
-		obs, done = env.reset(), False
-		while not done:
-			if SHOW:
-				env.render()
-			act = 1 if obs[0] > 0.0 else 0
-			print("ACT:", act)
-			obs, reward, done, _ = env.step(act)
-			print(obs)
+    env = gym.make("kidney-v0")
+    env = wrappers.ConfigWrapper(env, ACTION, EMBEDDING, MODEL, LOGGING)
+    for i in range(EPISODES):
+        obs, done = env.reset(), False
+        while not done:
+            if SHOW:
+                env.render()
+            act = 1 if obs[0] > 0.0 else 0
+            print("ACT:", act)
+            obs, reward, done, _ = env.step(act)
+            print(obs)
 
 if __name__ == "__main__":
-	main()
+    main()

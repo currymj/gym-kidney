@@ -83,7 +83,7 @@ def start():
             help="The maximum permitted cycle length")
     parser.add_argument("chain_cap", type=int,
             help="The maximum permitted number of edges in a chain")
-            
+
     args = parser.parse_args()
 
     input_lines = [line for line in sys.stdin]
@@ -97,7 +97,7 @@ def start():
         altruists = kidney_ndds.read_ndds(ndd_lines, d)
     else:
         altruists = []
-        
+
     cycles = count_cycles(d, args.cycle_cap)
     chain  = count_chains(d, altruists, args.chain_cap)
     print(cycles)

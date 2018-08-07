@@ -47,7 +47,7 @@ class OptConfig(object):
 
 class OptSolution(object):
     """An optimal solution for a kidney-exchange problem instance.
-    
+
     Data members:
         ip_model: The Gurobi Model object
         cycles: A list of cycles in the optimal solution, each represented
@@ -129,7 +129,7 @@ def optimise_relabelled(formulation_fun, cfg):
     sorted_vertices = sorted(cfg.digraph.vs,
                              key=lambda v: len(v.edges) + in_degs[v.id],
                              reverse=True)
-    
+
     relabelled_digraph = cfg.digraph.induced_subgraph(sorted_vertices)
 
     # old_to_new_vtx[i] is the vertex in the new graph corresponding to vertex
@@ -223,7 +223,7 @@ def optimise_uuef(cfg):
 
     obj_expr = ( quicksum(e.score * e.edge_var for ndd in cfg.ndds for e in ndd.edges) +
                  quicksum(e.score * var for e in cfg.digraph.es for var in e.grb_vars) )
-   
+
     m.setObjective(obj_expr, GRB.MAXIMIZE)
     optimise(m, cfg)
 
@@ -241,7 +241,7 @@ def optimise_uuef(cfg):
                                     cfg.digraph, cycle_start_vv, cycle_next_vv),
                        chains=kidney_utils.get_optimal_chains(cfg.digraph, cfg.ndds),
                        digraph=cfg.digraph)
-        
+
 ###################################################################################################
 #                                                                                                 #
 #                  Chain vars and constraints (used by HPIEF', HPIEF'' and PICEF)                 #
@@ -317,7 +317,7 @@ def add_hpief_prime_vars_partial_red(max_cycle, digraph, m, hpief_2_prime=False)
 
     # max_pos is the maximum edge position for which variables may be created
     max_pos = max_cycle-2 if hpief_2_prime else max_cycle-1
-    
+
     # Index i is in the list edge_vars_in[pos][v][low_v] if and only if
     # vars_and_edges[i] corresponds to an edge at position pos, pointing to vertex
     # v, in low_v's graph copy 
@@ -353,7 +353,7 @@ def add_hpief_prime_vars_full_red(max_cycle, digraph, m, hpief_2_prime=False):
 
     # max_pos is the maximum edge position for which variables may be created
     max_pos = max_cycle-2 if hpief_2_prime else max_cycle-1
-    
+
     edge_vars_in = [[[[] for __ in range(digraph.n)] for __ in range(digraph.n)] for __ in range(max_pos + 1)]
     edge_vars_out = [[[[] for __ in range(digraph.n)] for __ in range(digraph.n)] for __ in range(max_pos + 1)]
 
@@ -363,7 +363,7 @@ def add_hpief_prime_vars_full_red(max_cycle, digraph, m, hpief_2_prime=False):
             edges_seen.add((cycle[0].id, cycle[i].id, cycle[i+1].id, i))
         if not hpief_2_prime or len(cycle) < max_cycle:
             edges_seen.add((cycle[0].id, cycle[-1].id, cycle[0].id, len(cycle)-1))
-            
+
     for low_v, src_v, tgt_v, pos in edges_seen:
         new_var = m.addVar(vtype=GRB.BINARY)
         e = digraph.adj_mat[src_v][tgt_v]
@@ -381,19 +381,19 @@ def add_hpief_prime_vars_and_constraints(max_cycle, digraph, vtx_to_in_edges, m,
         vars_and_edges, edge_vars_in, edge_vars_out = add_hpief_prime_vars_full_red(max_cycle, digraph, m, hpief_2_prime)
     else:
         vars_and_edges, edge_vars_in, edge_vars_out = add_hpief_prime_vars_partial_red(max_cycle, digraph, m, hpief_2_prime)
-    
+
     for grb_var, pos, edge, low_vtx in vars_and_edges:
         vtx_to_in_edges[edge.tgt.id].append(grb_var)
         if pos==1:
             vtx_to_in_edges[edge.src.id].append(grb_var)
         if hpief_2_prime and pos == max_cycle - 2 and edge.tgt.id != low_vtx:
             vtx_to_in_edges[low_vtx].append(grb_var)
-        
+
     # Capacity constraint for vertices
     for l in vtx_to_in_edges:
         if len(l) > 0:
             m.addConstr(quicksum(l) <= 1)
-    
+
     # Cycle flow-conservation constraint for vertices
     for pos in range(1, max_pos):
         for v in range(digraph.n):
@@ -448,17 +448,17 @@ def optimise_hpief_prime(cfg, full_red=False, hpief_2_prime=False):
         obj_terms.append(score * var)
 
     obj_expr = quicksum(obj_terms)
-   
+
     if cfg.max_chain > 0:
         obj_expr += quicksum(e.score * e.edge_var for ndd in cfg.ndds for e in ndd.edges) 
         obj_expr += quicksum(e.score * var for e in cfg.digraph.es for var in e.grb_vars)
-    
+
     m.setObjective(obj_expr, GRB.MAXIMIZE)
     optimise(m, cfg)
 
     cycle_start_vv = []
     cycle_next_vv = {}
-    
+
     for var, pos, edge, low_v_id in vars_and_edges:
         if var.x > 0.1:
             cycle_next_vv[edge.src.id] = edge.tgt.id
@@ -467,7 +467,7 @@ def optimise_hpief_prime(cfg, full_red=False, hpief_2_prime=False):
                 cycle_next_vv[low_v_id] = edge.src.id
             if hpief_2_prime and pos == cfg.max_cycle - 2 and edge.tgt.id != low_v_id:
                 cycle_next_vv[edge.tgt.id] = low_v_id
-        
+
     return OptSolution(ip_model=m,
                        cycles=kidney_utils.selected_edges_to_cycles(
                                     cfg.digraph, cycle_start_vv, cycle_next_vv),
@@ -518,9 +518,9 @@ def optimise_picef(cfg):
 
     cycle_vars = [m.addVar(vtype=GRB.BINARY) for __ in cycles]
     m.update()
-    
+
     vtx_to_vars = [[] for __ in cfg.digraph.vs]
-    
+
     add_chain_vars_and_constraints(cfg.digraph, cfg.ndds, cfg.max_chain, m,
             vtx_to_vars, store_edge_positions=cfg.edge_success_prob!=1)
 
@@ -575,17 +575,17 @@ def optimise_ccf(cfg):
 
     cycles = cfg.digraph.find_cycles(cfg.max_cycle)
     chains = find_chains(cfg.digraph, cfg.ndds, cfg.max_chain, cfg.edge_success_prob)
-        
+
     m = create_ip_model(cfg.timelimit, cfg.verbose)
     m.params.method = 2
 
     cycle_vars = [m.addVar(vtype=GRB.BINARY) for __ in cycles]
     chain_vars = [m.addVar(vtype=GRB.BINARY) for __ in chains]
     m.update()
-    
+
     ndd_to_vars = [[] for __ in cfg.ndds]
     vtx_to_vars = [[] for __ in cfg.digraph.vs]
-    
+
     for var, c in zip(cycle_vars, cycles):
         for v in c:
             vtx_to_vars[v.id].append(var)
@@ -603,7 +603,7 @@ def optimise_ccf(cfg):
     obj_expr = (quicksum(failure_aware_cycle_score(c, cfg.digraph, cfg.edge_success_prob) * var
                          for (c, var) in zip(cycles, cycle_vars)) +
                 quicksum(c.score * var for (c, var) in zip(chains, chain_vars)))
-        
+
     m.setObjective(obj_expr, GRB.MAXIMIZE)
     optimise(m, cfg)
 
@@ -659,7 +659,7 @@ def add_eef_vars_full_red(max_cycle, digraph, m):
     for cycle in digraph.generate_cycles(max_cycle):
         for i in range(len(cycle)):
             edges_seen.add((cycle[0].id, cycle[i-1].id, cycle[i].id))
-            
+
     for low_v, src_v, tgt_v in edges_seen:
         new_var = m.addVar(vtype=GRB.BINARY)
         e = digraph.adj_mat[src_v][tgt_v]
@@ -675,15 +675,15 @@ def add_eef_vars_and_constraints(max_cycle, digraph, m, full_red, eef_alt_constr
         vars_and_edges, edge_vars_in, edge_vars_out = add_eef_vars_full_red(max_cycle, digraph, m)
     else:
         vars_and_edges, edge_vars_in, edge_vars_out = add_eef_vars_partial_red(max_cycle, digraph, m)
-    
+
     for grb_var, edge, low_vtx in vars_and_edges:
         vtx_to_in_edges[edge.tgt.id].append(grb_var)
-        
+
     # Capacity constraint for vertices
     for l in vtx_to_in_edges:
         if len(l) > 0:
             m.addConstr(quicksum(l) <= 1)
-    
+
     # Cycle flow-conservation constraint for vertices
     for v in range(digraph.n):
         for low_v_id in range(v):
@@ -704,7 +704,7 @@ def add_eef_vars_and_constraints(max_cycle, digraph, m, full_red, eef_alt_constr
                     edge_vars_leaving_l.append(var)
                 elif edge.tgt.id!=low_v_id:
                     edge_vars_not_involving_l.append(var)
-            
+
             # Number of edges constraint for each graph copy
             # (Note that this is redundant, but removing it seems to slow the program down
             # quite a bit.)
@@ -773,12 +773,12 @@ def optimise_eef(cfg, full_red=False):
 
     cycle_start_vv = []
     cycle_next_vv = {}
-    
+
     for var, edge, low_v_id in vars_and_edges:
         if var.x > 0.1:
             cycle_next_vv[edge.src.id] = edge.tgt.id
             cycle_start_vv.append(edge.src.id)
-        
+
     return OptSolution(ip_model=m,
                        cycles=kidney_utils.selected_edges_to_cycles(
                                     cfg.digraph, cycle_start_vv, cycle_next_vv),
